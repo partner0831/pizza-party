@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_DEPLOYMENT_VERSION": "ae22e86",
+      "NEXT_PUBLIC_FORCE_DEPLOYMENT": "true",
+      "NEXT_PUBLIC_CACHE_BUST": "true"
+    }
+  },
+  "regions": ["iad1"]
+} 
