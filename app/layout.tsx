@@ -66,6 +66,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <meta property="fc:frame" content="vNext" />
+        <meta property="fc:frame:name" content="Pizza Party" />
+        <meta
+          property="fc:frame:icon"
+          content="https://u.cubeupload.com/vmfcoin/E49A4767F2074D3C9CE7.png"
+        />
+        <meta
+          property="fc:frame:splash:image"
+          content="https://u.cubeupload.com/vmfcoin/PizzaPartyHomepageLa.png"
+        />
+        <meta property="fc:frame:splash:color" content="#b01c17" />
         <script type="module">
           {`
             // Import Farcaster Mini App SDK
