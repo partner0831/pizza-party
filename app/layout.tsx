@@ -1,9 +1,10 @@
-// src/app/layout.tsx
+import type React from "react";
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Providers from "@/components/Providers";
-import { Analytics } from "@vercel/analytics/next";
+import FarcasterWrapper from "@/components/FarcasterWrapper";
+import { WagmiProvider } from "@/components/WagmiProvider";
+import { Suspense } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -64,9 +65,28 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <script type="module">
+          {`
+            // Import Farcaster Mini App SDK
+            import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
+            
+            // Make SDK available globally
+            window.farcasterSdk = sdk;
+            
+            // Signal that SDK is ready
+            window.dispatchEvent(new CustomEvent('farcaster-sdk-loaded'));
+            
+            console.log('[v0] Farcaster SDK loaded via CDN');
+          `}
+        </script>
+      </head>
       <body className={inter.className}>
-        <Providers>{children}</Providers>
-        <Analytics />
+        <Suspense fallback={<div>Loading...</div>}>
+          <WagmiProvider>
+            <FarcasterWrapper>{children}</FarcasterWrapper>
+          </WagmiProvider>
+        </Suspense>
       </body>
     </html>
   );

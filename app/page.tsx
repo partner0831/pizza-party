@@ -13,7 +13,6 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ExternalLink, AlertCircle, X } from "lucide-react";
 import { useWallet } from "@/hooks/useWallet";
-import { SignInButton, type StatusAPIResponse } from "@farcaster/auth-kit";
 import {
   WALLETS,
   isMobile,
@@ -23,45 +22,8 @@ import {
   initMobileOptimizations,
 } from "@/lib/wallet-config";
 import { WalletStatus } from "@/components/WalletStatus";
-interface Cast {
-  hash: string;
-  text: string;
-  timestamp: string;
-  author: {
-    username: string;
-    display_name: string;
-    pfp_url: string;
-    fid: number;
-  };
-  reactions: {
-    likes_count: number;
-    recasts_count: number;
-    replies_count: number;
-  };
-  embeds?: Array<{
-    url?: string;
-    cast_id?: {
-      fid: number;
-      hash: string;
-    };
-  }>;
-}
+import { sdk } from "@farcaster/miniapp-sdk";
 
-interface UserProfile {
-  fid: number;
-  username: string;
-  display_name: string;
-  pfp_url: string;
-  bio: {
-    text: string;
-  };
-  follower_count: number;
-  following_count: number;
-  verified_addresses: {
-    eth_addresses: string[];
-    sol_addresses: string[];
-  };
-}
 export default function HomePage() {
   const customFontStyle = {
     fontFamily:
@@ -76,10 +38,7 @@ export default function HomePage() {
     isAndroid: false,
     isFarcaster: false,
   });
-  const [user, setUser] = useState<StatusAPIResponse | null>(null);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [casts, setCasts] = useState<Cast[]>([]);
-  const [loading, setLoading] = useState(false);
+
   const {
     connection,
     isConnecting,
@@ -108,32 +67,53 @@ export default function HomePage() {
   }, []);
 
   // Call Farcaster Mini App ready as early as possible so splash screen hides globally
-  // useEffect(() => {
-  //   if (!isFarcaster()) return
-  //   let cancelled = false
-  //   ;(async () => {
-  //     try {
-  //       let activeSdk: any = sdk
-  //       if (!activeSdk?.actions?.ready) {
-  //         try {
-  //           const imported = await import('@farcaster/miniapp-sdk')
-  //           activeSdk = imported.sdk
-  //         } catch (err) {
-  //           console.warn('⚠️ Failed dynamic import of @farcaster/miniapp-sdk', err)
-  //         }
-  //       }
-  //       if (!cancelled && activeSdk?.actions?.ready) {
-  //         await activeSdk.actions.ready()
-  //         console.log('✅ Called sdk.actions.ready() from root page')
-  //       } else {
-  //         console.warn('⚠️ sdk.actions.ready() unavailable in root page')
-  //       }
-  //     } catch (err) {
-  //       if (!cancelled) console.error('❌ Error calling sdk.actions.ready() in root page:', err)
-  //     }
-  //   })()
-  //   return () => { cancelled = true }
-  // }, [])
+  useEffect(() => {
+    // Only run client side and within Farcaster environment (iframe / user agent / hostname checks)
+    if (!deviceInfo.isFarcaster) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        // Prefer already imported sdk, fallback to dynamic import if actions not present
+        let activeSdk: any = sdk;
+        if (!activeSdk?.actions?.ready) {
+          try {
+            const imported = await import("@farcaster/miniapp-sdk");
+            activeSdk = imported.sdk;
+          } catch (err) {
+            console.warn(
+              "⚠️ Failed dynamic import of @farcaster/miniapp-sdk",
+              err
+            );
+          }
+        }
+        if (!cancelled && activeSdk?.actions?.ready) {
+          await activeSdk.actions.ready();
+          // Optional log for debugging
+          console.log("✅ Called sdk.actions.ready() from root page");
+        } else {
+          console.warn("⚠️ sdk.actions.ready() unavailable in root page");
+        }
+      } catch (err) {
+        if (!cancelled)
+          console.error(
+            "❌ Error calling sdk.actions.ready() in root page:",
+            err
+          );
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [deviceInfo.isFarcaster]);
+
+  // Farcaster Mini App SDK: Remove splash screen when ready
+  useEffect(() => {
+    console.log("[PizzaParty] About to call sdk.actions.ready()");
+    sdk.actions.ready();
+    console.log("[PizzaParty] Called sdk.actions.ready()");
+    // Optionally, listen for context events
+    // sdk.on('context', (context) => { console.log('Mini App context:', context); });
+  }, []);
 
   // Handle page refresh and wallet disconnection
   useEffect(() => {
@@ -247,11 +227,13 @@ export default function HomePage() {
   }, []); // Empty dependency array - runs only on mount
 
   // Farcaster Mini App SDK: Remove splash screen when ready
-  // useEffect(() => {
-  //   console.log('[PizzaParty] About to call sdk.actions.ready()');
-  //   sdk.actions.ready();
-  //   console.log('[PizzaParty] Called sdk.actions.ready()');
-  // }, []);
+  useEffect(() => {
+    console.log("[PizzaParty] About to call sdk.actions.ready()");
+    sdk.actions.ready();
+    console.log("[PizzaParty] Called sdk.actions.ready()");
+    // Optionally, listen for context events
+    // sdk.on('context', (context) => { console.log('Mini App context:', context); });
+  }, []);
 
   const handleWalletConnect = async (walletId: string) => {
     try {
@@ -348,42 +330,7 @@ export default function HomePage() {
       }
     }, 100);
   };
-  const handleSuccess = async (res: StatusAPIResponse) => {
-    console.log("Farcaster auth success:", res);
-    setUser(res);
 
-    if (res.fid) {
-      await fetchUserProfile(res.fid);
-      await fetchUserCasts(res.fid);
-    }
-  };
-
-  const fetchUserProfile = async (fid: number) => {
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/farcaster/user/${fid}`);
-      if (response.ok) {
-        const data = await response.json();
-        setUserProfile(data.user);
-      }
-    } catch (error) {
-      console.error("Error fetching user profile:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchUserCasts = async (fid: number) => {
-    try {
-      const response = await fetch(`/api/farcaster/casts/${fid}`);
-      if (response.ok) {
-        const data = await response.json();
-        setCasts(data.casts || []);
-      }
-    } catch (error) {
-      console.error("Error fetching casts:", error);
-    }
-  };
   return (
     <div
       className="min-h-screen p-2 sm:p-4"
@@ -584,12 +531,6 @@ export default function HomePage() {
                 onDisconnect={handleDisconnect}
                 customFontStyle={customFontStyle}
               />
-              <div className="w-full flex items-center justify-center">
-                <SignInButton
-                  onSuccess={handleSuccess}
-                  onError={(err) => console.error("Farcaster auth error:", err)}
-                />
-              </div>
             </div>
           </CardContent>
         </Card>
