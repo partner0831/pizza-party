@@ -1,5 +1,4 @@
 "use client";
-import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -13,16 +12,8 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ExternalLink, AlertCircle, X } from "lucide-react";
 import { useWallet } from "@/hooks/useWallet";
-import {
-  WALLETS,
-  isMobile,
-  isIOS,
-  isAndroid,
-  isFarcaster,
-  initMobileOptimizations,
-} from "@/lib/wallet-config";
+import { WALLETS } from "@/lib/wallet-config";
 import { WalletStatus } from "@/components/WalletStatus";
-import { sdk } from "@farcaster/miniapp-sdk";
 
 declare global {
   interface Window {
@@ -61,79 +52,80 @@ export default function HomePage() {
     setError,
   } = useWallet();
 
-  // // Initialize mobile optimizations and device detection
-  // useEffect(() => {
-  //   initMobileOptimizations();
-
-  //   setDeviceInfo({
-  //     isMobile: isMobile(),
-  //     isIOS: isIOS(),
-  //     isAndroid: isAndroid(),
-  //     isFarcaster: isFarcaster(),
-  //   });
-
-  //   if (typeof window !== "undefined") {
-  //     window.scrollTo(0, 0);
-  //   }
-  // }, []);
   useEffect(() => {
     const checkDevice = () => {
-      const userAgent = navigator.userAgent.toLowerCase()
-      const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent)
-      const isIOSDevice = /ipad|iphone|ipod/.test(userAgent)
-      const isAndroidDevice = /android/.test(userAgent)
-      const isFarcasterEnv = window.parent !== window || userAgent.includes("farcaster")
+      const userAgent = navigator.userAgent.toLowerCase();
+      const isMobileDevice =
+        /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+          userAgent
+        );
+      const isIOSDevice = /ipad|iphone|ipod/.test(userAgent);
+      const isAndroidDevice = /android/.test(userAgent);
+      const isFarcasterEnv =
+        window.parent !== window || userAgent.includes("farcaster");
 
       setDeviceInfo({
         isMobile: isMobileDevice,
         isIOS: isIOSDevice,
         isAndroid: isAndroidDevice,
         isFarcaster: isFarcasterEnv,
-      })
-    }
+      });
 
-    checkDevice()
-    if (typeof window !== "undefined") {
-      window.scrollTo(0, 0)
-    }
-  }, [])
-
-  // Farcaster Mini App SDK: Remove splash screen when ready
-  useEffect(() => {
-    if (!deviceInfo.isFarcaster) return
+      if (isFarcasterEnv) {
+        initializeFarcasterSDK();
+      }
+    };
 
     const initializeFarcasterSDK = async () => {
       try {
-        console.log("[v0] About to call sdk.actions.ready()")
+        console.log("[v0] Initializing Farcaster SDK...");
 
-        // Try multiple methods to call ready
-        if (window.farcasterSdk?.actions?.ready) {
-          await window.farcasterSdk.actions.ready()
-          console.log("[v0] ✅ Called window.farcasterSdk.actions.ready()")
-        }
-
-        // Try dynamic import
+        // Method 1: Try dynamic import first (most reliable)
         try {
-          const { sdk } = await import("@farcaster/miniapp-sdk")
+          const { sdk } = await import("@farcaster/miniapp-sdk");
           if (sdk?.actions?.ready) {
-            await sdk.actions.ready()
-            console.log("[v0] ✅ Called imported sdk.actions.ready()")
+            await sdk.actions.ready({ disableNativeGestures: false });
+            console.log(
+              "[v0] ✅ Successfully called sdk.actions.ready() via import"
+            );
+            return; // Success, exit early
           }
         } catch (importError) {
-          console.log("[v0] ⚠️ Could not import @farcaster/miniapp-sdk:", importError)
+          console.log("[v0] ⚠️ Import method failed:", importError);
         }
 
-        // Fallback postMessage
-        window.parent?.postMessage({ type: "sdk_ready" }, "*")
-        console.log("[v0] ✅ Sent sdk_ready message to parent")
-      } catch (error) {
-        console.error("[v0] ❌ Error in Farcaster SDK initialization:", error)
-      }
-    }
+        // Method 2: Try window.farcasterSdk
+        if (window.farcasterSdk?.actions?.ready) {
+          await window.farcasterSdk.actions.ready({
+            disableNativeGestures: false,
+          });
+          console.log(
+            "[v0] ✅ Successfully called window.farcasterSdk.actions.ready()"
+          );
+          return;
+        }
 
-    initializeFarcasterSDK()
-  }, [deviceInfo.isFarcaster])
-  
+        // Method 3: Fallback postMessage
+        window.parent?.postMessage({ type: "sdk_ready" }, "*");
+        console.log("[v0] ✅ Sent sdk_ready message to parent as fallback");
+      } catch (error) {
+        console.error("[v0] ❌ Error in Farcaster SDK initialization:", error);
+        // Still try the postMessage fallback
+        try {
+          window.parent?.postMessage({ type: "sdk_ready" }, "*");
+          console.log("[v0] ✅ Sent fallback sdk_ready message after error");
+        } catch (fallbackError) {
+          console.error("[v0] ❌ Fallback also failed:", fallbackError);
+        }
+      }
+    };
+
+    checkDevice();
+    if (typeof window !== "undefined") {
+      window.scrollTo(0, 0);
+    }
+  }, []);
+
   // Handle page refresh and wallet disconnection
   useEffect(() => {
     const handleBeforeUnload = () => {
@@ -662,7 +654,7 @@ export default function HomePage() {
                     <div className="flex items-center gap-3">
                       {wallet.iconImage ? (
                         <Image
-                          src={wallet.iconImage}
+                          src={wallet.iconImage || "/placeholder.svg"}
                           alt={wallet.name}
                           width={24}
                           height={24}
