@@ -242,15 +242,6 @@ export default function HomePage() {
     }
   }, []); // Empty dependency array - runs only on mount
 
-  // Farcaster Mini App SDK: Remove splash screen when ready
-  useEffect(() => {
-    console.log("[PizzaParty] About to call sdk.actions.ready()");
-    sdk.actions.ready();
-    console.log("[PizzaParty] Called sdk.actions.ready()");
-    // Optionally, listen for context events
-    // sdk.on('context', (context) => { console.log('Mini App context:', context); });
-  }, []);
-
   const handleWalletConnect = async (walletId: string) => {
     try {
       await connectWallet(walletId);
