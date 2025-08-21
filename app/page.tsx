@@ -77,60 +77,63 @@ export default function HomePage() {
   //   }
   // }, []);
   useEffect(() => {
-    initMobileOptimizations();
+    const checkDevice = () => {
+      const userAgent = navigator.userAgent.toLowerCase()
+      const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent)
+      const isIOSDevice = /ipad|iphone|ipod/.test(userAgent)
+      const isAndroidDevice = /android/.test(userAgent)
+      const isFarcasterEnv = window.parent !== window || userAgent.includes("farcaster")
 
-    setDeviceInfo({
-      isMobile: isMobile(),
-      isIOS: isIOS(),
-      isAndroid: isAndroid(),
-      isFarcaster: isFarcaster(),
-    });
-
-    if (typeof window !== "undefined") {
-      window.scrollTo(0, 0);
+      setDeviceInfo({
+        isMobile: isMobileDevice,
+        isIOS: isIOSDevice,
+        isAndroid: isAndroidDevice,
+        isFarcaster: isFarcasterEnv,
+      })
     }
-  }, []);
 
-  // Call Farcaster Mini App ready as early as possible so splash screen hides globally
-  // Call Farcaster Mini App ready as early as possible so splash screen hides globally
+    checkDevice()
+    if (typeof window !== "undefined") {
+      window.scrollTo(0, 0)
+    }
+  }, [])
+
+  // Farcaster Mini App SDK: Remove splash screen when ready
   useEffect(() => {
-    if (!deviceInfo.isFarcaster) return;
+    if (!deviceInfo.isFarcaster) return
 
     const initializeFarcasterSDK = async () => {
       try {
-        console.log("[v0] About to call sdk.actions.ready()");
+        console.log("[v0] About to call sdk.actions.ready()")
 
         // Try multiple methods to call ready
         if (window.farcasterSdk?.actions?.ready) {
-          await window.farcasterSdk.actions.ready();
-          console.log("[v0] ✅ Called window.farcasterSdk.actions.ready()");
+          await window.farcasterSdk.actions.ready()
+          console.log("[v0] ✅ Called window.farcasterSdk.actions.ready()")
         }
 
         // Try dynamic import
         try {
-          const { sdk } = await import("@farcaster/miniapp-sdk");
+          const { sdk } = await import("@farcaster/miniapp-sdk")
           if (sdk?.actions?.ready) {
-            await sdk.actions.ready();
-            console.log("[v0] ✅ Called imported sdk.actions.ready()");
+            await sdk.actions.ready()
+            console.log("[v0] ✅ Called imported sdk.actions.ready()")
           }
         } catch (importError) {
-          console.log(
-            "[v0] ⚠️ Could not import @farcaster/miniapp-sdk:",
-            importError
-          );
+          console.log("[v0] ⚠️ Could not import @farcaster/miniapp-sdk:", importError)
         }
 
         // Fallback postMessage
-        window.parent?.postMessage({ type: "sdk_ready" }, "*");
-        console.log("[v0] ✅ Sent sdk_ready message to parent");
+        window.parent?.postMessage({ type: "sdk_ready" }, "*")
+        console.log("[v0] ✅ Sent sdk_ready message to parent")
       } catch (error) {
-        console.error("[v0] ❌ Error in Farcaster SDK initialization:", error);
+        console.error("[v0] ❌ Error in Farcaster SDK initialization:", error)
       }
-    };
+    }
 
-    initializeFarcasterSDK();
-  }, [deviceInfo.isFarcaster]);
-
+    initializeFarcasterSDK()
+  }, [deviceInfo.isFarcaster])
+  
   // Handle page refresh and wallet disconnection
   useEffect(() => {
     const handleBeforeUnload = () => {
