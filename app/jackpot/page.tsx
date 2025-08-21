@@ -202,7 +202,7 @@ export default function JackpotPage() {
                 <Button
                   variant="secondary"
                   size="icon"
-                  className="bg-white hover:bg-gray-100 text-black border-2 border-gray-300 rounded-xl shadow-lg"
+                  className="!bg-white hover:!bg-gray-100 text-black border-2 border-gray-300 rounded-xl shadow-lg"
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
@@ -237,8 +237,8 @@ export default function JackpotPage() {
                 disabled={!isConnected || userClaimableToppings <= 0 || !canClaim}
                 className={`w-full text-lg font-bold py-3 px-6 rounded-xl border-4 shadow-lg transform hover:scale-105 transition-all ${
                   isConnected && userClaimableToppings > 0 && canClaim
-                    ? "bg-green-600 hover:bg-green-700 text-white border-green-800"
-                    : "bg-gray-400 text-gray-600 border-gray-500 cursor-not-allowed"
+                    ? "!bg-green-600 hover:!bg-green-700 text-white border-green-800"
+                    : "!bg-gray-400 text-gray-600 border-gray-500 cursor-not-allowed"
                 }`}
                 style={customFontStyle}
               >
@@ -362,7 +362,7 @@ export default function JackpotPage() {
             <div style={{ gap: "20px", display: "flex", flexDirection: "column" }}>
               <Link href="/game">
                 <Button
-                  className="w-full bg-green-600 hover:bg-green-700 text-white text-lg font-bold py-3 px-6 rounded-xl border-4 border-green-800 shadow-lg transform hover:scale-105 transition-all"
+                  className="w-full !bg-green-600 hover:!bg-green-700 text-white text-lg font-bold py-3 px-6 rounded-xl border-4 border-green-800 shadow-lg transform hover:scale-105 transition-all"
                   style={{
                     ...customFontStyle,
                     letterSpacing: "1px",
@@ -375,7 +375,7 @@ export default function JackpotPage() {
 
               <Link href="/leaderboard">
                 <Button
-                  className="w-full bg-green-600 hover:bg-green-700 text-white text-lg font-bold py-3 px-6 rounded-xl border-4 border-green-800 shadow-lg transform hover:scale-105 transition-all"
+                  className="w-full !bg-green-600 hover:!bg-green-700 text-white text-lg font-bold py-3 px-6 rounded-xl border-4 border-green-800 shadow-lg transform hover:scale-105 transition-all"
                   style={{
                     ...customFontStyle,
                     letterSpacing: "1px",

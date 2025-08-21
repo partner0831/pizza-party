@@ -9,45 +9,25 @@ import { Suspense } from "react";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://136320a06ae8.ngrok-free.app"),
-  title: "Pizza Party - Daily Games, Weekly Jackpots",
+  title: "Pizza Party - The Tastiest Way to Chase Jackpots",
   description:
-    "Play daily Pizza Party games to earn toppings and win weekly VMF jackpots!",
-  manifest: "/manifest.json",
-  icons: {
-    icon: "/images/pizza-party-title-transparent.png",
-    apple: "/images/pizza-party-title-transparent.png",
-  },
-  generator: "v0.dev",
+    "Get a slice of the action with Pizza Party, a sizzling decentralized jackpot game on Base! Toss in just $1 VMF for a chance to dough-minate daily and weekly prizes. With crust-worthy on-chain randomness, instant payouts, and cheesy topping rewards, it's a fair and fun fest for the whole pizza posse.",
+  generator: "v0.app",
   openGraph: {
-    title: "Pizza Party - Daily Games, Weekly Jackpots",
+    title: "Join the Pizza Party Fun!",
     description:
-      "Play daily Pizza Party games to earn toppings and win weekly VMF jackpots!",
-    images: ["/images/pizza-homepage.png"],
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Pizza Party - Daily Games, Weekly Jackpots",
-    description:
-      "Play daily Pizza Party games to earn toppings and win weekly VMF jackpots!",
-    images: ["/images/pizza-homepage.png"],
+      "Get a slice of the action with Pizza Party, a sizzling decentralized jackpot game on Base! Toss in just $1 VMF for a chance to dough-minate daily and weekly prizes. With crust-worthy on-chain randomness, instant payouts, and cheesy topping rewards, it's a fair and fun fest for the whole pizza posse.",
+    images: ["https://u.cubeupload.com/vmfcoin/PizzaPartyHomepageLa.png"],
+    url: "https://v0-farcaster-preview-issue.vercel.app",
   },
   other: {
-    "fc:frame": JSON.stringify({
-      version: "next",
-      imageUrl: "/images/pizza-homepage.png",
-      button: {
-        title: "🍕 Play Pizza Party",
-        action: {
-          type: "launch_frame",
-          name: "Pizza Party",
-          url: "/",
-          splashImageUrl: "/images/pizza-party-title-transparent.png",
-          splashBackgroundColor: "#FF6B35",
-        },
-      },
-    }),
+    "fc:frame": "vNext",
+    "fc:frame:name": "Pizza Party",
+    "fc:frame:icon":
+      "https://u.cubeupload.com/vmfcoin/E49A4767F2074D3C9CE7.png",
+    "fc:frame:splash:image":
+      "https://u.cubeupload.com/vmfcoin/PizzaPartyHomepageLa.png",
+    "fc:frame:splash:color": "#b01c17",
   },
 };
 
@@ -81,7 +61,6 @@ export default function RootLayout({
           {`
             // Import Farcaster Mini App SDK
             import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
-            
             // Make SDK available globally
             window.farcasterSdk = sdk;
             

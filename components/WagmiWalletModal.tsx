@@ -107,25 +107,25 @@ export const WagmiWalletModal = ({ isOpen, onClose, onConnect }: WagmiWalletModa
           <div className="space-y-3">
             {/* Show all 5 wallets */}
             {[
-              { id: 'metaMask', name: 'MetaMask', icon: '/images/metamask-icon.svg', color: 'bg-orange-500 hover:bg-orange-600' },
-              { id: 'coinbaseWallet', name: 'Coinbase Wallet', icon: '/images/Coinbase-icon.png', color: 'bg-blue-600 hover:bg-blue-700' },
-              { id: 'trust', name: 'Trust Wallet', icon: '/images/trust-wallet-icon.svg', color: 'bg-blue-600 hover:bg-blue-700' },
-              { id: 'rainbow', name: 'Rainbow', icon: '/images/rainbow-wallet-icon.svg', color: 'bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600' },
-              { id: 'phantom', name: 'Phantom', icon: '/images/phantom-wallet-icon.svg', color: 'bg-purple-600 hover:bg-purple-700' }
+              { id: 'metaMask', name: 'MetaMask', icon: '/images/metamask-official.png', color: '!bg-orange-500 hover:!bg-orange-600' },
+              { id: 'coinbaseWallet', name: 'Coinbase Wallet', icon: '/images/Coinbase-icon.png', color: '!bg-blue-600 hover:!bg-blue-700' },
+              { id: 'trust', name: 'Trust Wallet', icon: '/images/trust-wallet-official.png', color: '!bg-[#000F7E] hover:!bg-[#000F7E]/90' },
+              { id: 'rainbow', name: 'Rainbow', icon: '/images/rainbow-wallet-official.png', color: '!bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600' },
+              { id: 'phantom', name: 'Phantom', icon: '/images/phantom-wallet-official.png', color: '!bg-purple-600 hover:!bg-purple-700' }
             ].map((wallet) => (
                 <Button
                 key={wallet.id}
                 onClick={() => handleConnect(wallet.id)}
                 disabled={isProcessing && selectedConnector === wallet.id}
-                className={`w-full font-bold py-6 px-4 rounded-xl border-2 shadow-lg transform hover:scale-105 transition-all flex items-center justify-between text-lg ${wallet.color}`}
+                className={`w-full font-bold py-6 px-8 rounded-xl shadow-lg transform hover:scale-105 transition-all flex items-center justify-between text-lg ${wallet.color}`}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
                   <Image
                     src={wallet.icon}
                     alt={`${wallet.name} icon`}
-                    width={24}
-                    height={24}
-                    className="w-6 h-6"
+                    width={32}
+                    height={32}
+                    className="w-8 h-8"
                     onError={(e) => {
                       // Fallback to emoji if image fails to load
                       const target = e.target as HTMLImageElement;
@@ -137,7 +137,7 @@ export const WagmiWalletModal = ({ isOpen, onClose, onConnect }: WagmiWalletModa
                     }}
                   />
                   <span 
-                    className="text-lg"
+                    className="text-xl"
                     style={{ display: 'none' }}
                   >
                     {wallet.id === 'metaMask' ? '🦊' : 
@@ -145,13 +145,13 @@ export const WagmiWalletModal = ({ isOpen, onClose, onConnect }: WagmiWalletModa
                      wallet.id === 'trust' ? '🛡️' :
                      wallet.id === 'rainbow' ? '🌈' : '👻'}
                   </span>
-                  <span>{wallet.name}</span>
+                  <span className="text-lg font-bold">{wallet.name}</span>
                 </div>
                 <div className="flex-shrink-0">
                   {isProcessing && selectedConnector === wallet.id ? (
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
                   ) : (
-                    <ExternalLink className="h-4 w-4 text-white" />
+                    <ExternalLink className="h-5 w-5 text-white" />
                   )}
                 </div>
                 </Button>
